@@ -2,7 +2,7 @@ import requests
 import numpy as np
 import networkx as nx
 
-def move_robot(symbol):
+def Send_post(symbol):
     orientation = {
         3: "right",
         4: "left",
@@ -41,6 +41,7 @@ def scan_box(data):
        box = [box[2]]+[box[3]]+[box[1]]+[box[0]]
     return box
 
+[1,0,1,1]
 def get_data():
     url = "http://127.0.0.1:8801/api/v1/robot-cells/sensor-data"
     token = "afa44b00-7d0e-4f53-b6cf-e062b81b7657c4af354b-4757-4099-b6d2-e6ec72ccc2a3"
@@ -98,9 +99,26 @@ def det_obstacle(box):
         number = 15
     return number
 
-def DFA(graph,stack,position):
+def Move_robot(g,v,u,yaw):
+    if v!=u:
+        distance = g.nodes[u]['coord'] - g.nodes[v]['coord']
+        if distance == [0,1]:
+            temp = 90
+        elif distance == [0,-1]:
+            temp = -90
+        elif distance == [1,0]:
+            temp = 180
+        elif distance == [-1,0]:
+            temp = 0
+        while yaw !=temp:
+            Send_post(3)
+            data = get_data()
+            yaw = data['yaw']
+        Send_post(1)
+
+def DFS(g,stack,position):
     while not stack == True:
-        neghbours = []
+        neighbours = []
         v = stack.pop()
         data = get_data()
         box = scan_box(data)
@@ -115,10 +133,10 @@ def DFA(graph,stack,position):
                 elif i==3 and not g.has_edge(v,v-1):
                     g.add_edge(v,v-1)
         for n in g.neighbors(v):
-            neghbours = neghbours+[n]
-        g.nodes[v]['neghbours'] = neghbours
+            neighbours = neighbours+[n]
+        g.nodes[v]['neighbours'] = neighbours
         g.nodes[v]['visible'] = True
-        for i in neghbours:
+        for i in neighbours:
             if g.nodes[i]['visible'] != True:
                 g.nodes[i]['parent'] = v
                 stack.append(i)
