@@ -125,13 +125,6 @@ def DFA(graph,stack,position):
         Move_robot(g,position,v,data['yaw'])
         position = v
 
-
-
-
-
-
-
-
 g = nx.Graph()
 stack = []
 j = 15
