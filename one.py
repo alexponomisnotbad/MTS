@@ -133,9 +133,26 @@ class Graph:
             if self.can_connect(coord, neighbour_coord):
                 self.adjacency_list[coord]['neighbours'].append(neighbour_coord)
 
+class Graph:
+    def __init__(self):
+        self.adjacency_list = {}
+
+    def add_node(self, coord):
+        self.adjacency_list[coord] = {'neighbours': []}
+
+    def can_connect(self, coord1, coord2):
+        return coord2 in self.adjacency_list
+
+    def scan_and_connect(self, coord):
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # север, юг, запад, восток
+        for direction in directions:
+            neighbour_coord = (coord[0] + direction[0], coord[1] + direction[1])
+            if self.can_connect(coord, neighbour_coord):
+                self.adjacency_list[coord]['neighbours'].append(neighbour_coord)
+
 # Создаем граф
 g = Graph()
-map_size = (5, 5)
+map_size = (16, 16)
 
 # Добавляем клетки на карту
 for x in range(map_size[0]):
@@ -147,13 +164,23 @@ for x in range(map_size[0]):
     for y in range(map_size[1]):
         g.scan_and_connect((x, y))
 
-# Проверяем соседей для клетки (1, 1)
-print(f'Neighbours of (1, 1): {g.adjacency_list[(1, 1)]["neighbours"]}')
+# Визуализация графа
+G = nx.Graph()
+
+# Добавляем узлы и рёбра в NetworkX граф
+for node, data in g.adjacency_list.items():
+    G.add_node(node)
+    for neighbour in data['neighbours']:
+        G.add_edge(node, neighbour)
 
 # Настройка визуализации
 pos = {(x, y): (y, -x) for x, y in G.nodes()}  # Позиции узлов для визуализации
-nx.draw(G, pos, with_labels=True, node_size=600, node_color='lightblue', font_size=10, font_color='black', font_weight='bold', edge_color='gray')
+nx.draw(G, pos, with_labels=True, node_size=600, node_color='lightblue', font_size=10,
+        font_color='black', font_weight='bold', edge_color='gray')
+
+# Инвертируем ось Y
+plt.gca().invert_yaxis()
 
 # Показать граф
-plt.title('Graph Visualization')
+plt.title('Graph Visualization with (0,0) in the Bottom Left Corner')
 plt.show()
